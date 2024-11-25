@@ -1,0 +1,27 @@
+﻿<h4>Books</h4>
+<button @onclick="DownloadBook">Download Book Details</button>
+@* Replace "9780140328721" with a valid ISBN *@
+@* TODO: Need to add functionality to allow user to enter USBN o book and to search for that book *@
+<input @bind="isbn" placeholder="Enter ISBN" />
+<ol>
+    @if (bookDetails != null)
+    {
+    <li>Title: @bookDetails.Title</li>
+    <li>Author(s): @string.Join(", ", bookDetails.Authors.Select(a => a.Name))</li>
+    <li>Publish Date: @bookDetails.PublishDate</li>
+    }
+</ol>
+
+@code {
+private BookDetails? bookDetails;
+private string isbn = "9780140328721"; // Default ISBN for testing
+
+private void DownloadBook()
+{
+if (!string.IsNullOrWhiteSpace(isbn))
+{
+// Call the service method to fetch book details by ISBN
+bookDetails = MusicService.GetBookDetails(isbn);
+}
+}
+}

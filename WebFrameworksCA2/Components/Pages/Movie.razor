@@ -1,0 +1,22 @@
+﻿<h4>Movies</h4>
+<button @onclick="DownloadMovies">Download Popular Movies</button>
+<ol>
+    @if (topmovies != null)
+    {
+    @foreach (var movie in topmovies.Results)
+    {
+        <li>@movie.Title</li>
+    }
+    }
+</ol>
+
+@code{
+
+    private Movies? topmovies;
+    
+    private void DownloadMovies()
+    {
+        topmovies = MusicService.GetPopularMovies();
+    }
+
+}
