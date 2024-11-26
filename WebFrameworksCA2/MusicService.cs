@@ -56,13 +56,12 @@ public class MusicService
         var response = client.Get(request);
         if (!string.IsNullOrEmpty(response.Content))
         {
-            string receivedJson = response.Content;
-            Movies? topMovies = JsonConvert.DeserializeObject<Movies>(response.Content);
-            return topMovies;
+            return JsonConvert.DeserializeObject<Movies>(response.Content);
         }
 
         return null;
     }
+
 
     public static BookDetails? GetBookDetails(string isbn)
     {

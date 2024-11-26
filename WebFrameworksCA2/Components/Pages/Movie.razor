@@ -1,22 +1,59 @@
 ﻿<h4>Movies</h4>
 <button @onclick="DownloadMovies">Download Popular Movies</button>
-<ol>
-    @if (topmovies != null)
-    {
-    @foreach (var movie in topmovies.Results)
-    {
-        <li>@movie.Title</li>
-    }
-    }
-</ol>
 
-@code{
+@if (isLoading)
+{
+    <p>Loading...</p>
+}
+else if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p style="color: red;">@errorMessage</p>
+}
+else if (topmovies != null)
+{
+    <ol>
+        @foreach (var movie in topmovies.Results)
+        {
+            <li>
+                <strong>@movie.Title</strong> 
+                <br />
+                Release Date: @movie.ReleaseDate
+                <br />
+                Rating: @movie.VoteAverage/10 (@movie.VoteCount votes)
+                <br />
+                <a href="https://www.themoviedb.org/movie/@movie.Id" target="_blank">View on TMDb</a>
+                <br />
+                @if (!string.IsNullOrEmpty(movie.PosterPath))
+                {
+                    <img src="https://image.tmdb.org/t/p/w200/@movie.PosterPath" alt="@movie.Title poster" />
+                }
+            </li>
+        }
+    </ol>
+}
 
+@code {
     private Movies? topmovies;
-    
+    private bool isLoading = false;
+    private string? errorMessage;
+
     private void DownloadMovies()
     {
-        topmovies = MusicService.GetPopularMovies();
-    }
+        isLoading = true; // Start loading
+        errorMessage = null; // Clear previous errors
 
+        try
+        {
+            topmovies = MusicService.GetPopularMovies(); // Fetch popular movies
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Failed to fetch movies. Please try again.";
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false; // End loading
+        }
+    }
 }
