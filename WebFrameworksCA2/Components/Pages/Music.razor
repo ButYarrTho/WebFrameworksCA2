@@ -1,24 +1,50 @@
 ﻿<h3>Music</h3>
 <button @onclick="DownloadArtists">Download</button>
-<ol>
 
-    @if (topartists != null)
-    {
-    @foreach (var artist in topartists.topartists.artist)
-    {
-    <li>
-        @artist.name
-    </li>
-    }
-    }
-</ol>
-@code {
-
-private Artists? topartists;
-
-private void DownloadArtists()
+@if (isLoading)
 {
-topartists = MusicService.GetTopArtists();
+    <p>Loading...</p>
+}
+else if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p style="color: red;">@errorMessage</p>
+}
+else if (topartists != null)
+{
+    <ol>
+        @foreach (var artist in topartists.Topartists.Artist)
+        {
+            <li>
+                <strong>@artist.Name</strong> - Plays: @artist.Playcount
+                <br />
+                <a href="@artist.Url" target="_blank">More Info</a>
+            </li>
+        }
+    </ol>
 }
 
+@code {
+    private Artists? topartists;
+    private bool isLoading = false;
+    private string? errorMessage;
+
+    private void DownloadArtists()
+    {
+        isLoading = true; // Start loading
+        errorMessage = null; // Clear previous errors
+
+        try
+        {
+            topartists = MusicService.GetTopArtists(); // Fetch data
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Failed to fetch artists. Please try again.";
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false; // End loading
+        }
+    }
 }

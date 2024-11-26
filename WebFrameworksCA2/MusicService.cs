@@ -12,24 +12,35 @@ public class MusicService
 
         string user = "test";
         string method = "user.getTopArtists";
-        string myKey = "581cca30b41a4cc0d5b3eb59d502b651";
+        string apiKey = "f7555ab661a6ee7dca7c3c247e68f045";
 
-        request.AddParameter("method", method); 
-        request.AddParameter("user", user); 
-        request.AddParameter("api_key", myKey);
+        request.AddParameter("method", method);
+        request.AddParameter("user", user);
+        request.AddParameter("api_key", apiKey);
         request.AddParameter("limit", 100);
         request.AddParameter("format", "json");
-            
-        var response = client.Get(request);
-        if (!string.IsNullOrEmpty(response.Content))
+
+        try
         {
-            string receivedJson = response.Content;
-            Artists? topArtists = JsonConvert.DeserializeObject<Artists>(response.Content);
-            return topArtists;
+            var response = client.Get(request);
+
+            if (response.IsSuccessful && !string.IsNullOrEmpty(response.Content))
+            {
+                return JsonConvert.DeserializeObject<Artists>(response.Content);
+            }
+            else
+            {
+                Console.WriteLine($"API error: {response.StatusCode} - {response.StatusDescription}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error making API call: {ex.Message}");
         }
 
         return null;
     }
+
     
     public static Movies? GetPopularMovies()
     {
