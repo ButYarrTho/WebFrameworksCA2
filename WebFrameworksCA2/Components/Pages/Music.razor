@@ -15,9 +15,15 @@ else if (topartists != null)
         @foreach (var artist in topartists.Topartists.Artist)
         {
             <li>
-                <strong>@artist.Name</strong> - Plays: @artist.Playcount
-                <br />
-                <a href="@artist.Url" target="_blank">More Info</a>
+                <strong>@artist.Name</strong>
+                <p>
+                    Playcount: @artist.Playcount
+                    <br />
+                    Rank: @artist.Attr?.Rank
+                    <br />
+                    <a href="@artist.Url" target="_blank">View on Last.fm</a>
+                </p>
+                <button @onclick="() => OnSongButtonClicked(artist.Name)">Action</button>
             </li>
         }
     </ol>
@@ -30,12 +36,12 @@ else if (topartists != null)
 
     private void DownloadArtists()
     {
-        isLoading = true; // Start loading
-        errorMessage = null; // Clear previous errors
+        isLoading = true;
+        errorMessage = null;
 
         try
         {
-            topartists = MusicService.GetTopArtists(); // Fetch data
+            topartists = MusicService.GetTopArtists();
         }
         catch (Exception ex)
         {
@@ -44,7 +50,13 @@ else if (topartists != null)
         }
         finally
         {
-            isLoading = false; // End loading
+            isLoading = false;
         }
+    }
+
+    private void OnSongButtonClicked(string artistName)
+    {
+        Console.WriteLine($"Button clicked for artist: {artistName}");
+        // Placeholder functionality to be implemented later
     }
 }

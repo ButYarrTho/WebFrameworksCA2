@@ -1,27 +1,70 @@
 ﻿<h4>Books</h4>
 <button @onclick="DownloadBook">Download Book Details</button>
-@* Replace "9780140328721" with a valid ISBN *@
-@* TODO: Need to add functionality to allow user to enter USBN o book and to search for that book *@
+
 <input @bind="isbn" placeholder="Enter ISBN" />
-<ol>
-    @if (bookDetails != null)
-    {
-    <li>Title: @bookDetails.Title</li>
-    <li>Author(s): @string.Join(", ", bookDetails.Authors.Select(a => a.Name))</li>
-    <li>Publish Date: @bookDetails.PublishDate</li>
-    }
-</ol>
+@if (isLoading)
+{
+    <p>Loading...</p>
+}
+else if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p style="color: red;">@errorMessage</p>
+}
+else if (bookDetails != null)
+{
+    <ol>
+        <li>
+            <strong>Title:</strong> @bookDetails.Title
+            <br />
+            <strong>Author(s):</strong> @string.Join(", ", bookDetails.Authors.Select(a => a.Name))
+            <br />
+            <strong>Publish Date:</strong> @bookDetails.PublishDate
+            <br />
+            <strong>Number of Pages:</strong> @bookDetails.NumberOfPages
+            <br />
+            <strong>Cover:</strong>
+            <img src="@bookDetails.Cover.Medium" alt="Book Cover" />
+            <br />
+            <a href="https://openlibrary.org/isbn/@isbn" target="_blank">View on Open Library</a>
+            <br />
+            <button @onclick="() => OnBookButtonClicked(bookDetails.Title)">Action</button>
+        </li>
+    </ol>
+}
 
 @code {
-private BookDetails? bookDetails;
-private string isbn = "9780140328721"; // Default ISBN for testing
+    private BookDetails? bookDetails;
+    private string isbn = "9780140328721"; // Default ISBN for testing
+    private bool isLoading = false;
+    private string? errorMessage;
 
-private void DownloadBook()
-{
-if (!string.IsNullOrWhiteSpace(isbn))
-{
-// Call the service method to fetch book details by ISBN
-bookDetails = MusicService.GetBookDetails(isbn);
-}
-}
+    private void DownloadBook()
+    {
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            if (!string.IsNullOrWhiteSpace(isbn))
+            {
+                // Call the service method to fetch book details by ISBN
+                bookDetails = MusicService.GetBookDetails(isbn);
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Failed to fetch book details. Please try again.";
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void OnBookButtonClicked(string bookTitle)
+    {
+        Console.WriteLine($"Button clicked for book: {bookTitle}");
+        // Placeholder for additional functionality to be implemented later
+    }
 }

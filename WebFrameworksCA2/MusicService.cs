@@ -17,7 +17,7 @@ public class MusicService
         request.AddParameter("method", method);
         request.AddParameter("user", user);
         request.AddParameter("api_key", apiKey);
-        request.AddParameter("limit", 100);
+        request.AddParameter("limit", 20);
         request.AddParameter("format", "json");
 
         try
