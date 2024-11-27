@@ -1,61 +1,112 @@
 ﻿<h4>Movies</h4>
 <button @onclick="DownloadMovies">Download Popular Movies</button>
+<input @bind="movieSearchQuery" placeholder="Search Movies" />
+<button @onclick="SearchMovies">Search</button>
 
 @if (isLoading)
 {
-    <p>Loading...</p>
+<p>Loading...</p>
 }
 else if (!string.IsNullOrEmpty(errorMessage))
 {
-    <p style="color: red;">@errorMessage</p>
+<p style="color: red;">@errorMessage</p>
+}
+else if (isSearchMode && searchResults != null)
+{
+<h5>Search Results:</h5>
+<ol>
+    @foreach (var movie in searchResults.Results)
+    {
+    <li>
+        <strong>@movie.Title</strong>
+        <p>
+            Overview: @movie.Overview
+            <br />
+            <a href="https://www.themoviedb.org/movie/@movie.Id" target="_blank">View on TMDb</a>
+        </p>
+        <button @onclick="() => OnMovieButtonClicked(movie.Title)">Action</button>
+    </li>
+    }
+</ol>
 }
 else if (topmovies != null)
 {
-    <ol>
-        @foreach (var movie in topmovies.Results)
-        {
-            <li>
-                <strong>@movie.Title</strong>
-                <p>
-                    Overview: @movie.Overview
-                    <br />
-                    
-                    <a href="https://www.themoviedb.org/movie/@movie.Id" target="_blank">View on TMDb</a>
-                </p>
-                <button @onclick="() => OnMovieButtonClicked(movie.Title)">Action</button>
-            </li>
-        }
-    </ol>
+<h5>Popular Movies:</h5>
+<ol>
+    @foreach (var movie in topmovies.Results)
+    {
+    <li>
+        <strong>@movie.Title</strong>
+        <p>
+            Overview: @movie.Overview
+            <br />
+            <a href="https://www.themoviedb.org/movie/@movie.Id" target="_blank">View on TMDb</a>
+        </p>
+        <button @onclick="() => OnMovieButtonClicked(movie.Title)">Action</button>
+    </li>
+    }
+</ol>
 }
 
 @code {
-    private Movies? topmovies;
-    private bool isLoading = false;
-    private string? errorMessage;
+private Movies? topmovies;
+private Movies? searchResults;
+private bool isLoading = false;
+private bool isSearchMode = false;
+private string? errorMessage;
+private string movieSearchQuery = string.Empty;
 
-    private void DownloadMovies()
-    {
-        isLoading = true;
-        errorMessage = null;
+private void DownloadMovies()
+{
+isLoading = true;
+errorMessage = null;
+isSearchMode = false;
 
-        try
-        {
-            topmovies = MusicService.GetPopularMovies();
-        }
-        catch (Exception ex)
-        {
-            errorMessage = "Failed to fetch movies. Please try again.";
-            Console.WriteLine($"Error: {ex.Message}");
-        }
-        finally
-        {
-            isLoading = false;
-        }
-    }
+try
+{
+topmovies = MusicService.GetPopularMovies();
+}
+catch (Exception ex)
+{
+errorMessage = "Failed to fetch movies. Please try again.";
+Console.WriteLine($"Error: {ex.Message}");
+}
+finally
+{
+isLoading = false;
+}
+}
 
-    private void OnMovieButtonClicked(string movieTitle)
-    {
-        Console.WriteLine($"Button clicked for movie: {movieTitle}");
-        // Placeholder functionality to be implemented later
-    }
+private void SearchMovies()
+{
+if (string.IsNullOrWhiteSpace(movieSearchQuery))
+{
+errorMessage = "Search query cannot be empty.";
+return;
+}
+
+isLoading = true;
+errorMessage = null;
+isSearchMode = true;
+
+try
+{
+searchResults = MusicService.SearchMovies(movieSearchQuery);
+}
+catch (Exception ex)
+{
+errorMessage = "Failed to search for movies. Please try again.";
+Console.WriteLine($"Error: {ex.Message}");
+}
+finally
+{
+isLoading = false;
+}
+}
+
+private void OnMovieButtonClicked(string movieTitle)
+{
+Console.WriteLine($"Button clicked for movie: {movieTitle}");
+// Placeholder functionality to be implemented later
+}
 }

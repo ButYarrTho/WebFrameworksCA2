@@ -41,7 +41,41 @@ public class MusicService
         return null;
     }
 
-    
+    public static Artists? SearchArtists(string query)
+    {
+        var client = new RestClient("http://ws.audioscrobbler.com/2.0/");
+        var request = new RestRequest();
+
+        string method = "artist.search";
+        string apiKey = "f7555ab661a6ee7dca7c3c247e68f045";
+
+        request.AddParameter("method", method);
+        request.AddParameter("artist", query);
+        request.AddParameter("api_key", apiKey);
+        request.AddParameter("format", "json");
+
+        try
+        {
+            var response = client.Get(request);
+
+            if (response.IsSuccessful && !string.IsNullOrEmpty(response.Content))
+            {
+                // Map the search response to the Artists class or a new `SearchResults` model.
+                return JsonConvert.DeserializeObject<Artists>(response.Content);
+            }
+            else
+            {
+                Console.WriteLine($"API error: {response.StatusCode} - {response.StatusDescription}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error making API call: {ex.Message}");
+        }
+
+        return null;
+    }
+
     public static Movies? GetPopularMovies()
     {
         var client = new RestClient("https://api.themoviedb.org/3/movie/popular");
@@ -62,6 +96,38 @@ public class MusicService
         return null;
     }
 
+    public static Movies? SearchMovies(string query)
+    {
+        var client = new RestClient("https://api.themoviedb.org/3/search/movie");
+        var request = new RestRequest();
+
+        string apiKey = "ab4cf041cdde4402f97e6360a20cbfbc";
+
+        request.AddParameter("api_key", apiKey);
+        request.AddParameter("query", query);
+        request.AddParameter("language", "en-US");
+        request.AddParameter("page", 1);
+
+        try
+        {
+            var response = client.Get(request);
+
+            if (response.IsSuccessful && !string.IsNullOrEmpty(response.Content))
+            {
+                return JsonConvert.DeserializeObject<Movies>(response.Content);
+            }
+            else
+            {
+                Console.WriteLine($"API error: {response.StatusCode} - {response.StatusDescription}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error making API call: {ex.Message}");
+        }
+
+        return null;
+    }
 
     public static BookDetails? GetBookDetails(string isbn)
     {
