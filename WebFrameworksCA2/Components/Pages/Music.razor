@@ -1,38 +1,65 @@
 ﻿<h3>Music</h3>
-<button @onclick="DownloadArtists">Download</button>
+
+<!-- Search Section -->
+<input type="text" @bind="searchQuery" placeholder="Search for artists..." />
+<button @onclick="SearchArtists">Search</button>
+<button @onclick="DownloadArtists">Download Top Artists</button>
 
 @if (isLoading)
 {
-    <p>Loading...</p>
+<p>Loading...</p>
 }
 else if (!string.IsNullOrEmpty(errorMessage))
 {
-    <p style="color: red;">@errorMessage</p>
+<p style="color: red;">@errorMessage</p>
 }
-else if (topartists != null)
+else if (topartists != null && topartists.Results?.ArtistMatches?.Artists?.Length > 0)
 {
-    <ol>
-        @foreach (var artist in topartists.Topartists.Artist)
-        {
-            <li>
-                <strong>@artist.Name</strong>
-                <p>
-                    Playcount: @artist.Playcount
-                    <br />
-                    Rank: @artist.Attr?.Rank
-                    <br />
-                    <a href="@artist.Url" target="_blank">View on Last.fm</a>
-                </p>
-                <button @onclick="() => OnSongButtonClicked(artist.Name)">Action</button>
-            </li>
-        }
-    </ol>
+<ol>
+    @foreach (var artist in topartists.Results.ArtistMatches.Artists)
+    {
+    <li>
+        <strong>@artist.Name</strong>
+        <p>
+            Playcount: @artist.Playcount
+            <br />
+            <a href="@artist.Url" target="_blank">View on Last.fm</a>
+        </p>
+        <button @onclick="() => OnSongButtonClicked(artist.Name)">Action</button>
+    </li>
+    }
+</ol>
 }
+else if (topartists != null && topartists.Topartists?.Artist?.Length > 0)
+{
+<ol>
+    @foreach (var artist in topartists.Topartists.Artist)
+    {
+    <li>
+        <strong>@artist.Name</strong>
+        <p>
+            Playcount: @artist.Playcount
+            <br />
+            Rank: @artist.Attr?.Rank
+            <br />
+            <a href="@artist.Url" target="_blank">View on Last.fm</a>
+        </p>
+        <button @onclick="() => OnSongButtonClicked(artist.Name)">Action</button>
+    </li>
+    }
+</ol>
+}
+else
+{
+<p>No artists found. Try searching or downloading top artists.</p>
+}
+
 
 @code {
     private Artists? topartists;
     private bool isLoading = false;
     private string? errorMessage;
+    private string searchQuery = string.Empty;
 
     private void DownloadArtists()
     {
@@ -54,9 +81,44 @@ else if (topartists != null)
         }
     }
 
+// Search for artists based on the search
+    private void SearchArtists()
+    {
+        if (string.IsNullOrWhiteSpace(searchQuery))
+        {
+            errorMessage = "Please enter an artist name to search.";
+            topartists = null;  // Ensure that no previous search results are shown
+            return;
+        }
+
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            topartists = MusicService.SearchArtists(searchQuery);
+
+            // Check if search results exist
+            if (topartists == null || topartists.Results?.ArtistMatches?.Artists == null || topartists.Results.ArtistMatches.Artists.Length == 0)
+            {
+                errorMessage = "No results found for your search.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Failed to search for artists. Please try again.";
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+// Placeholder for action button
     private void OnSongButtonClicked(string artistName)
     {
         Console.WriteLine($"Button clicked for artist: {artistName}");
-        // Placeholder functionality to be implemented later
+        // Placeholder functionality
     }
 }

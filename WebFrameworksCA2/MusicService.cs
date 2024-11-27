@@ -46,10 +46,9 @@ public class MusicService
         var client = new RestClient("http://ws.audioscrobbler.com/2.0/");
         var request = new RestRequest();
 
-        string method = "artist.search";
         string apiKey = "f7555ab661a6ee7dca7c3c247e68f045";
 
-        request.AddParameter("method", method);
+        request.AddParameter("method", "artist.search");
         request.AddParameter("artist", query);
         request.AddParameter("api_key", apiKey);
         request.AddParameter("format", "json");
@@ -60,7 +59,6 @@ public class MusicService
 
             if (response.IsSuccessful && !string.IsNullOrEmpty(response.Content))
             {
-                // Map the search response to the Artists class or a new `SearchResults` model.
                 return JsonConvert.DeserializeObject<Artists>(response.Content);
             }
             else

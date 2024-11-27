@@ -6,6 +6,9 @@ namespace WebFrameworksCA2
     {
         [JsonProperty("topartists")]
         public Topartists Topartists { get; set; }
+
+        [JsonProperty("results")]
+        public SearchResults Results { get; set; }
     }
 
     public class Topartists
@@ -15,6 +18,39 @@ namespace WebFrameworksCA2
 
         [JsonProperty("@attr")]
         public _attr Attr { get; set; }
+    }
+
+    public class SearchResults
+    {
+        [JsonProperty("opensearch:Query")]
+        public SearchQuery Query { get; set; }
+
+        [JsonProperty("opensearch:totalResults")]
+        public string TotalResults { get; set; }
+
+        [JsonProperty("opensearch:startIndex")]
+        public string StartIndex { get; set; }
+
+        [JsonProperty("opensearch:itemsPerPage")]
+        public string ItemsPerPage { get; set; }
+
+        [JsonProperty("artistmatches")]
+        public ArtistMatches ArtistMatches { get; set; }
+    }
+
+    public class SearchQuery
+    {
+        [JsonProperty("searchTerms")]
+        public string SearchTerms { get; set; }
+
+        [JsonProperty("startPage")]
+        public string StartPage { get; set; }
+    }
+
+    public class ArtistMatches
+    {
+        [JsonProperty("artist")]
+        public Artist[] Artists { get; set; }
     }
 
     public class Artist
@@ -36,6 +72,9 @@ namespace WebFrameworksCA2
 
         [JsonProperty("@attr")]
         public _attr1 Attr { get; set; }
+
+        [JsonProperty("listeners")]
+        public string Listeners { get; set; }
 
         [JsonProperty("name")]
         public string Name { get; set; }
