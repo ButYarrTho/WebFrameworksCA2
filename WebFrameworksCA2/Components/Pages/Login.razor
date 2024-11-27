@@ -1,0 +1,60 @@
+﻿@page "/login"
+@rendermode InteractiveServer
+
+<h3>Login</h3>
+
+<div class="login-container">
+    <form>
+        <!-- Username Input -->
+        <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" @bind="username" placeholder="Enter your username" class="form-control" />
+        </div>
+
+        <!-- Password Input -->
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" @bind="password" placeholder="Enter your password" class="form-control" />
+        </div>
+
+        <!-- Remember Me Checkbox -->
+        <div class="form-group">
+            <label>
+                <input type="checkbox" @bind="rememberMe" /> Remember Me
+            </label>
+        </div>
+
+        <!-- Login Button -->
+        <div class="form-group">
+            <button type="button"  @* @onclick="Login" *@ class="btn btn-primary">Login</button> 
+        </div>
+    </form>
+</div>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+<p style="color: red;">@errorMessage</p>
+}
+@code {
+    
+     private string username = string.Empty;
+     private string password = string.Empty;
+     private bool rememberMe = false;
+     private string errorMessage = string.Empty;
+
+@*      private void Login() *@
+@*      { *@
+@*          // Placeholder logic for login *@
+@*          if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password)) *@
+@*          { *@
+@*              errorMessage = "Please enter both username and password."; *@
+@*          } *@
+@*          else *@
+@*          { *@
+@*              errorMessage = string.Empty; *@
+@*              Console.WriteLine($"Username: {username}, Password: {password}, Remember Me: {rememberMe}"); *@
+@*              // Add authentication logic here *@
+@*          } *@
+@*      } *@
+@* } *@
+}

@@ -1,0 +1,73 @@
+﻿@page "/registration"
+@rendermode InteractiveServer
+
+<h3>Registration</h3>
+
+<div class="registration-container">
+    <form>
+        <!-- Username Input -->
+        <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" @bind="username" placeholder="Enter your username" class="form-control" />
+        </div>
+
+        <!-- Email Input -->
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" @bind="email" placeholder="Enter your email address" class="form-control" />
+        </div>
+
+        <!-- Password Input -->
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" @bind="password" placeholder="Enter your password" class="form-control" />
+        </div>
+
+        <!-- Confirm Password Input -->
+        <div class="form-group">
+            <label for="confirmPassword">Confirm Password:</label>
+            <input type="password" id="confirmPassword" @bind="confirmPassword" placeholder="Confirm your password" class="form-control" />
+        </div>
+
+        <!-- Register Button -->
+        <div class="form-group">
+            <button type="button" @onclick="Register" class="btn btn-primary">Register</button>
+        </div>
+    </form>
+</div>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p style="color: red;">@errorMessage</p>
+}
+
+@code {
+    private string username = string.Empty;
+    private string email = string.Empty;
+    private string password = string.Empty;
+    private string confirmPassword = string.Empty;
+    private string errorMessage = string.Empty;
+
+    private void Register()
+    {
+        // Basic validation
+        if (string.IsNullOrWhiteSpace(username) ||
+            string.IsNullOrWhiteSpace(email) ||
+            string.IsNullOrWhiteSpace(password) ||
+            string.IsNullOrWhiteSpace(confirmPassword))
+        {
+            errorMessage = "Please fill in all the fields.";
+            return;
+        }
+
+        if (password != confirmPassword)
+        {
+            errorMessage = "Passwords do not match.";
+            return;
+        }
+
+        errorMessage = string.Empty;
+        Console.WriteLine($"Registration successful: Username: {username}, Email: {email}");
+        // Add further registration logic here (e.g., saving to database)
+    }
+}
