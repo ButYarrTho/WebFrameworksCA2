@@ -1,4 +1,6 @@
 ﻿@page "/likes"
+@using System.Data
+@using MySql.Data.MySqlClient
 @rendermode InteractiveServer
 
 <PageTitle>Likes</PageTitle>
@@ -7,18 +9,107 @@
 
 <section>
     <h4>Songs</h4>
-    <p>No liked songs yet. Stay tuned!</p>
+    @if (songs?.Count > 0)
+    {
+        <ul>
+            @foreach (var song in songs)
+            {
+                <li>@song</li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p>No liked songs yet. Stay tuned!</p>
+    }
 </section>
 
 <section>
     <h4>Movies</h4>
-    <p>No liked movies yet. Stay tuned!</p>
+    @if (movies?.Count > 0)
+    {
+        <ul>
+            @foreach (var movie in movies)
+            {
+                <li>@movie</li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p>No liked movies yet. Stay tuned!</p>
+    }
 </section>
 
 <section>
     <h4>Books</h4>
-    <p>No liked books yet. Stay tuned!</p>
+    @if (books?.Count > 0)
+    {
+        <ul>
+            @foreach (var book in books)
+            {
+                <li>@book</li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p>No liked books yet. Stay tuned!</p>
+    }
 </section>
+
 @code {
-    
+    private List<string> songs = new();
+    private List<string> movies = new();
+    private List<string> books = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        try
+        {
+            var connectionString = "Server=b4wrtzahdokrnwkdisvz-mysql.services.clever-cloud.com;Database=b4wrtzahdokrnwkdisvz;User=u404013ijbde7adc;Password=VCdtkloWCwNiL29KUOL3;Port=3306;";
+
+            using var connection = new MySqlConnection(connectionString);
+            await connection.OpenAsync();
+
+            // gets songs
+            using (var command = new MySqlCommand("SELECT Name FROM Artists", connection))
+            using (var reader = await command.ExecuteReaderAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    songs.Add(reader.GetString("Name"));
+                }
+            }
+
+            // gets movies
+            using (var command = new MySqlCommand("SELECT Title FROM Movies", connection))
+            using (var reader = await command.ExecuteReaderAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    movies.Add(reader.GetString("Title"));
+                }
+            }
+
+            // gets books
+            using (var command = new MySqlCommand("SELECT Title FROM Books", connection))
+            using (var reader = await command.ExecuteReaderAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    books.Add(reader.GetString("Title"));
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading data: {ex.Message}");
+        }
+    }
 }
