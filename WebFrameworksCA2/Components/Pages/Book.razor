@@ -1,4 +1,6 @@
-﻿<h4>Books</h4>
+﻿
+
+<h4>Books</h4>
 <button @onclick="DownloadBook">Download Book Details</button>
 
 <input @bind="isbn" placeholder="Enter ISBN" />
@@ -33,6 +35,7 @@ else if (bookDetails != null)
 }
 
 @code {
+    
     private BookDetails? bookDetails;
     private string isbn = "9780140328721"; // Default ISBN for testing
     private bool isLoading = false;
