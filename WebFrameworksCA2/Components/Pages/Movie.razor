@@ -1,4 +1,5 @@
-﻿<h4>Movies</h4>
+﻿@using MySql.Data.MySqlClient
+<h4>Movies</h4>
 <button @onclick="DownloadMovies">Download Popular Movies</button>
 <input @bind="movieSearchQuery" placeholder="Search Movies" />
 <button @onclick="SearchMovies">Search</button>
@@ -104,9 +105,43 @@ isLoading = false;
 }
 }
 
+
+
 private void OnMovieButtonClicked(string movieTitle)
 {
-Console.WriteLine($"Button clicked for movie: {movieTitle}");
-// Placeholder functionality to be implemented later
+    var connectionString = "Server=b4wrtzahdokrnwkdisvz-mysql.services.clever-cloud.com;Database=b4wrtzahdokrnwkdisvz;User=u404013ijbde7adc;Password=VCdtkloWCwNiL29KUOL3;Port=3306;";
+
+    try
+    {
+        // connect to database
+        using var connection = new MySqlConnection(connectionString);
+        connection.Open();
+
+        // SQL query to put movie title into db
+        var insertQuery = @"
+                INSERT IGNORE INTO Movies (Title) 
+                VALUES (@Title);";
+
+        using var insertCommand = new MySqlCommand(insertQuery, connection);
+
+        // associate movie title with the query
+        insertCommand.Parameters.AddWithValue("@Title", movieTitle);
+        
+        // this pushes the query
+        int rowsAffected = insertCommand.ExecuteNonQuery();
+
+        if (rowsAffected > 0)
+        {
+            Console.WriteLine($"Added new movie: {movieTitle}");
+        }
+        else
+        {
+            Console.WriteLine($"Movie already exists: {movieTitle}");
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error adding movie to the database: {movieTitle}. Error: {ex.Message}");
+    }
 }
 }

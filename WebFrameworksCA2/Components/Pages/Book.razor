@@ -1,4 +1,5 @@
-﻿
+﻿@using MySql.Data.MySqlClient
+
 
 <h4>Books</h4>
 <button @onclick="DownloadBook">Download Book Details</button>
@@ -67,7 +68,39 @@ else if (bookDetails != null)
 
     private void OnBookButtonClicked(string bookTitle)
     {
-        Console.WriteLine($"Button clicked for book: {bookTitle}");
-        // Placeholder for additional functionality to be implemented later
+        var connectionString = "Server=b4wrtzahdokrnwkdisvz-mysql.services.clever-cloud.com;Database=b4wrtzahdokrnwkdisvz;User=u404013ijbde7adc;Password=VCdtkloWCwNiL29KUOL3;Port=3306;";
+
+        try
+        {
+            // Connect to database
+            using var connection = new MySqlConnection(connectionString);
+            connection.Open();
+
+            // query to insert book title
+            var insertQuery = @"
+                INSERT IGNORE INTO Books (Title) 
+                VALUES (@Title);";
+
+            using var insertCommand = new MySqlCommand(insertQuery, connection);
+
+            // associates book title with query
+            insertCommand.Parameters.AddWithValue("@Title", bookTitle);
+
+            // this pushes the query
+            int rowsAffected = insertCommand.ExecuteNonQuery();
+
+            if (rowsAffected > 0)
+            {
+                Console.WriteLine($"Added new book: {bookTitle}");
+            }
+            else
+            {
+                Console.WriteLine($"Book already exists: {bookTitle}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error adding book to the database: {bookTitle}. Error: {ex.Message}");
+        }
     }
 }
