@@ -5,114 +5,211 @@
 
 <PageTitle>Likes</PageTitle>
 
-<h3>Likes</h3>
+<h3 class="text-center">Liked Items</h3>
 
-<section>
+<section class="likes-section">
     <h4>Songs</h4>
     @if (songs?.Count > 0)
     {
-    <ul>
-        @foreach (var song in songs)
-        {
-        <li>@song</li>
-        }
-    </ul>
+        <table class="likes-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Song Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var song in songs.Select((value, index) => new { index, value }))
+                {
+                    <tr>
+                        <td>@(song.index + 1)</td>
+                        <td>@song.value</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     }
     else
     {
-    <p>No liked songs yet. Stay tuned!</p>
+        <p>No liked songs yet. Stay tuned!</p>
     }
 </section>
 
-<section>
+<section class="likes-section">
     <h4>Movies</h4>
     @if (movies?.Count > 0)
     {
-    <ul>
-        @foreach (var movie in movies)
-        {
-        <li>@movie</li>
-        }
-    </ul>
+        <table class="likes-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Movie Title</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var movie in movies.Select((value, index) => new { index, value }))
+                {
+                    <tr>
+                        <td>@(movie.index + 1)</td>
+                        <td>@movie.value</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     }
     else
     {
-    <p>No liked movies yet. Stay tuned!</p>
+        <p>No liked movies yet. Stay tuned!</p>
     }
 </section>
 
-<section>
+<section class="likes-section">
     <h4>Books</h4>
     @if (books?.Count > 0)
     {
-    <ul>
-        @foreach (var book in books)
-        {
-        <li>@book</li>
-        }
-    </ul>
+        <table class="likes-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Book Title</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var book in books.Select((value, index) => new { index, value }))
+                {
+                    <tr>
+                        <td>@(book.index + 1)</td>
+                        <td>@book.value</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     }
     else
     {
-    <p>No liked books yet. Stay tuned!</p>
+        <p>No liked books yet. Stay tuned!</p>
     }
 </section>
 
 @code {
-private List<string> songs = new();
-private List<string> movies = new();
-private List<string> books = new();
+    private List<string> songs = new();
+    private List<string> movies = new();
+    private List<string> books = new();
 
-protected override async Task OnInitializedAsync()
-{
-await LoadDataAsync();
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        try
+        {
+            var connectionString = "Server=b4wrtzahdokrnwkdisvz-mysql.services.clever-cloud.com;Database=b4wrtzahdokrnwkdisvz;User=u404013ijbde7adc;Password=VCdtkloWCwNiL29KUOL3;Port=3306;";
+
+            using var connection = new MySqlConnection(connectionString);
+            await connection.OpenAsync();
+
+            // gets and sorts songs
+            using (var command = new MySqlCommand("SELECT Name FROM Artists", connection))
+            using (var reader = await command.ExecuteReaderAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    songs.Add(reader.GetString("Name"));
+                }
+            }
+            songs.Sort(); // this sorts alphabetically
+
+            // gets and sorts movies
+            using (var command = new MySqlCommand("SELECT Title FROM Movies", connection))
+            using (var reader = await command.ExecuteReaderAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    movies.Add(reader.GetString("Title"));
+                }
+            }
+            movies.Sort(); // this sorts alphabetically
+
+            // gets and sorts books
+            using (var command = new MySqlCommand("SELECT Title FROM Books", connection))
+            using (var reader = await command.ExecuteReaderAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    books.Add(reader.GetString("Title"));
+                }
+            }
+            books.Sort(); // this sorts alphabetically
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading data: {ex.Message}");
+        }
+    }
 }
 
-private async Task LoadDataAsync()
-{
-try
-{
-var connectionString = "Server=b4wrtzahdokrnwkdisvz-mysql.services.clever-cloud.com;Database=b4wrtzahdokrnwkdisvz;User=u404013ijbde7adc;Password=VCdtkloWCwNiL29KUOL3;Port=3306;";
+<style>
+    /* General layout */
+    .likes-section {
+        margin-bottom: 30px;
+    }
 
-using var connection = new MySqlConnection(connectionString);
-await connection.OpenAsync();
+    /* Center the content */
+    h3.text-center {
+        text-align: center;
+        font-size: 2em;
+        margin-bottom: 20px;
+    }
 
-// gets and sorts songs
-using (var command = new MySqlCommand("SELECT Name FROM Artists", connection))
-using (var reader = await command.ExecuteReaderAsync())
-{
-while (await reader.ReadAsync())
-{
-songs.Add(reader.GetString("Name"));
-}
-}
-songs.Sort(); // this sorts alphabetically
+    /* Table layout for liked items */
+    .likes-table {
+        width: 100%;
+        margin-top: 10px;
+        border-collapse: collapse;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
 
-// gets and sorts movies
-using (var command = new MySqlCommand("SELECT Title FROM Movies", connection))
-using (var reader = await command.ExecuteReaderAsync())
-{
-while (await reader.ReadAsync())
-{
-movies.Add(reader.GetString("Title"));
-}
-}
-movies.Sort(); // this sorts alphabetically
+    .likes-table th, .likes-table td {
+        text-align: left;
+        padding: 12px;
+        border: 1px solid #ddd;
+    }
 
-// gets and sorts books
-using (var command = new MySqlCommand("SELECT Title FROM Books", connection))
-using (var reader = await command.ExecuteReaderAsync())
-{
-while (await reader.ReadAsync())
-{
-books.Add(reader.GetString("Title"));
-}
-}
-books.Sort(); // this sorts alphabetically
-}
-catch (Exception ex)
-{
-Console.WriteLine($"Error loading data: {ex.Message}");
-}
-}
-}
+    .likes-table th {
+        background-color: #f0f0f0;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .likes-table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    .likes-table tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    /* Ensure the sections have some space from the edges */
+    section {
+        width: 80%;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    /* Style for headings */
+    h4 {
+        font-size: 1.5em;
+        color: #333;
+        margin-bottom: 15px;
+        text-align: center;
+    }
+
+    /* Style for the "No liked items" message */
+    p {
+        text-align: center;
+        color: #888;
+        font-size: 1.2em;
+    }
+</style>
