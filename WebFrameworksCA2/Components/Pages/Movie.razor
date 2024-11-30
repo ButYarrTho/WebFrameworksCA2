@@ -1,8 +1,16 @@
-﻿@using MySql.Data.MySqlClient
-<h4>Movies</h4>
-<button @onclick="DownloadMovies">Download Popular Movies</button>
-<input @bind="movieSearchQuery" placeholder="Search Movies" />
-<button @onclick="SearchMovies">Search</button>
+﻿@page "/movies"
+@using MySql.Data.MySqlClient
+
+<PageTitle>Movies</PageTitle>
+
+<h3 class="text-center">Movies</h3>
+
+<!-- Search Section -->
+<div class="search-section">
+    <input type="text" @bind="movieSearchQuery" placeholder="Search Movies" class="search-input" />
+    <button @onclick="SearchMovies" class="search-button">Search</button>
+    <button @onclick="DownloadMovies" class="download-button">Download Popular Movies</button>
+</div>
 
 @if (isLoading)
 {
@@ -15,38 +23,58 @@ else if (!string.IsNullOrEmpty(errorMessage))
 else if (isSearchMode && searchResults != null)
 {
 <h5>Search Results:</h5>
-<ol>
-    @foreach (var movie in searchResults.Results)
+<table class="movies-table">
+    <thead>
+    <tr>
+        <th>#</th>
+        <th>Movie Title</th>
+        <th>Overview</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var movie in searchResults.Results.Select((value, index) => new { index, value }))
     {
-    <li>
-        <strong>@movie.Title</strong>
-        <p>
-            Overview: @movie.Overview
-            <br />
-            <a href="https://www.themoviedb.org/movie/@movie.Id" target="_blank">View on TMDb</a>
-        </p>
-        <button @onclick="() => OnMovieButtonClicked(movie.Title)">Action</button>
-    </li>
+    <tr>
+        <td>@(movie.index + 1)</td>
+        <td>@movie.value.Title</td>
+        <td>@movie.value.Overview</td>
+        <td>
+            <a href="https://www.themoviedb.org/movie/@movie.value.Id" target="_blank">View on TMDb</a>
+            <button @onclick="() => OnMovieButtonClicked(movie.value.Title)">Add to Database</button>
+        </td>
+    </tr>
     }
-</ol>
+    </tbody>
+</table>
 }
 else if (topmovies != null)
 {
 <h5>Popular Movies:</h5>
-<ol>
-    @foreach (var movie in topmovies.Results)
+<table class="movies-table">
+    <thead>
+    <tr>
+        <th>#</th>
+        <th>Movie Title</th>
+        <th>Overview</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var movie in topmovies.Results.Select((value, index) => new { index, value }))
     {
-    <li>
-        <strong>@movie.Title</strong>
-        <p>
-            Overview: @movie.Overview
-            <br />
-            <a href="https://www.themoviedb.org/movie/@movie.Id" target="_blank">View on TMDb</a>
-        </p>
-        <button @onclick="() => OnMovieButtonClicked(movie.Title)">Action</button>
-    </li>
+    <tr>
+        <td>@(movie.index + 1)</td>
+        <td>@movie.value.Title</td>
+        <td>@movie.value.Overview</td>
+        <td>
+            <a href="https://www.themoviedb.org/movie/@movie.value.Id" target="_blank">View on TMDb</a>
+            <button @onclick="() => OnMovieButtonClicked(movie.value.Title)">Add to Database</button>
+        </td>
+    </tr>
     }
-</ol>
+    </tbody>
+</table>
 }
 
 @code {
@@ -105,43 +133,133 @@ isLoading = false;
 }
 }
 
-
-
 private void OnMovieButtonClicked(string movieTitle)
 {
-    var connectionString = "Server=b4wrtzahdokrnwkdisvz-mysql.services.clever-cloud.com;Database=b4wrtzahdokrnwkdisvz;User=u404013ijbde7adc;Password=VCdtkloWCwNiL29KUOL3;Port=3306;";
+var connectionString = "Server=b4wrtzahdokrnwkdisvz-mysql.services.clever-cloud.com;Database=b4wrtzahdokrnwkdisvz;User=u404013ijbde7adc;Password=VCdtkloWCwNiL29KUOL3;Port=3306;";
 
-    try
-    {
-        // connect to database
-        using var connection = new MySqlConnection(connectionString);
-        connection.Open();
+try
+{
+// Connect to the database
+using var connection = new MySqlConnection(connectionString);
+connection.Open();
 
-        // SQL query to put movie title into db
-        var insertQuery = @"
-                INSERT IGNORE INTO Movies (Title) 
-                VALUES (@Title);";
+// SQL query to put movie title into db
+var insertQuery = @"
+                                INSERT IGNORE INTO Movies (Title) 
+                                VALUES (@Title);";
 
-        using var insertCommand = new MySqlCommand(insertQuery, connection);
+using var insertCommand = new MySqlCommand(insertQuery, connection);
 
-        // associate movie title with the query
-        insertCommand.Parameters.AddWithValue("@Title", movieTitle);
-        
-        // this pushes the query
-        int rowsAffected = insertCommand.ExecuteNonQuery();
+// Associate movie title with the query
+insertCommand.Parameters.AddWithValue("@Title", movieTitle);
 
-        if (rowsAffected > 0)
-        {
-            Console.WriteLine($"Added new movie: {movieTitle}");
-        }
-        else
-        {
-            Console.WriteLine($"Movie already exists: {movieTitle}");
-        }
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Error adding movie to the database: {movieTitle}. Error: {ex.Message}");
-    }
+// Execute the query
+int rowsAffected = insertCommand.ExecuteNonQuery();
+
+if (rowsAffected > 0)
+{
+Console.WriteLine($"Added new movie: {movieTitle}");
+}
+else
+{
+Console.WriteLine($"Movie already exists: {movieTitle}");
 }
 }
+catch (Exception ex)
+{
+Console.WriteLine($"Error adding movie to the database: {movieTitle}. Error: {ex.Message}");
+}
+}
+}
+
+<style>
+    /* General layout */
+    .search-section {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    .search-input {
+        padding: 8px;
+        font-size: 16px;
+        width: 250px;
+        margin-right: 10px;
+    }
+
+    .search-button, .download-button {
+        padding: 8px 15px;
+        font-size: 16px;
+        margin-left: 10px;
+        cursor: pointer;
+    }
+
+    .search-button {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+    }
+
+    .download-button {
+        background-color: #2196F3;
+        color: white;
+        border: none;
+    }
+
+    /* Table layout for movies */
+    .movies-table {
+        width: 80%;
+        max-width: 1000px;
+        margin: 0 auto;
+        border-collapse: collapse;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .movies-table th, .movies-table td {
+        text-align: left;
+        padding: 12px;
+        border: 1px solid #ddd;
+    }
+
+    .movies-table th {
+        background-color: #f0f0f0;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .movies-table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    .movies-table tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    /* Center the table content */
+    h3.text-center {
+        text-align: center;
+        font-size: 2em;
+        margin-bottom: 20px;
+    }
+
+    /* Button style for actions */
+    button {
+        background-color: #4CAF50;
+        color: white;
+        padding: 8px 15px;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    button:hover {
+        background-color: #45a049;
+    }
+
+    /* Message for no results */
+    p {
+        text-align: center;
+        color: #888;
+        font-size: 1.2em;
+    }
+</style>
