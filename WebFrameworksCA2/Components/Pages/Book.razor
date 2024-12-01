@@ -1,10 +1,15 @@
-﻿@using MySql.Data.MySqlClient
+﻿@page "/books"
+@using MySql.Data.MySqlClient
 
+<PageTitle>Books</PageTitle>
 
-<h4>Books</h4>
-<button @onclick="DownloadBook">Download Book Details</button>
+<h3 class="text-center">Books</h3>
 
-<input @bind="isbn" placeholder="Enter ISBN" />
+<div class="search-section">
+    <input type="text" @bind="isbn" placeholder="Enter ISBN" class="search-input" />
+    <button @onclick="DownloadBook" class="download-button">Download Book Details</button>
+</div>
+
 @if (isLoading)
 {
     <p>Loading...</p>
@@ -15,28 +20,26 @@ else if (!string.IsNullOrEmpty(errorMessage))
 }
 else if (bookDetails != null)
 {
-    <ol>
-        <li>
-            <strong>Title:</strong> @bookDetails.Title
-            <br />
-            <strong>Author(s):</strong> @string.Join(", ", bookDetails.Authors.Select(a => a.Name))
-            <br />
-            <strong>Publish Date:</strong> @bookDetails.PublishDate
-            <br />
-            <strong>Number of Pages:</strong> @bookDetails.NumberOfPages
-            <br />
-            <strong>Cover:</strong>
-            <img src="@bookDetails.Cover.Medium" alt="Book Cover" />
-            <br />
-            <a href="https://openlibrary.org/isbn/@isbn" target="_blank">View on Open Library</a>
-            <br />
-            <button @onclick="() => OnBookButtonClicked(bookDetails.Title)">Action</button>
-        </li>
-    </ol>
+    <h5>Book Details:</h5>
+    <div class="book-details">
+        <strong>Title:</strong> @bookDetails.Title
+        <br />
+        <strong>Author(s):</strong> @string.Join(", ", bookDetails.Authors.Select(a => a.Name))
+        <br />
+        <strong>Publish Date:</strong> @bookDetails.PublishDate
+        <br />
+        <strong>Number of Pages:</strong> @bookDetails.NumberOfPages
+        <br />
+        <strong>Cover:</strong>
+        <img src="@bookDetails.Cover.Medium" alt="Book Cover" class="book-cover" />
+        <br />
+        <a href="https://openlibrary.org/isbn/@isbn" target="_blank" class="link-to-open-library">View on Open Library</a>
+        <br />
+        <button @onclick="() => OnBookButtonClicked(bookDetails.Title)" class="action-button">Add to Database</button>
+    </div>
 }
 
 @code {
-    
     private BookDetails? bookDetails;
     private string isbn = "9780140328721"; // Default ISBN for testing
     private bool isLoading = false;
@@ -51,7 +54,7 @@ else if (bookDetails != null)
         {
             if (!string.IsNullOrWhiteSpace(isbn))
             {
-                // Call the service method to fetch book details by ISBN
+                // Call service method to get book details by ISBN
                 bookDetails = MusicService.GetBookDetails(isbn);
             }
         }
@@ -76,17 +79,17 @@ else if (bookDetails != null)
             using var connection = new MySqlConnection(connectionString);
             connection.Open();
 
-            // query to insert book title
+            // Query to insert book title
             var insertQuery = @"
                 INSERT IGNORE INTO Books (Title) 
                 VALUES (@Title);";
 
             using var insertCommand = new MySqlCommand(insertQuery, connection);
 
-            // associates book title with query
+            // Associates book title with query
             insertCommand.Parameters.AddWithValue("@Title", bookTitle);
 
-            // this pushes the query
+            // Executes the query
             int rowsAffected = insertCommand.ExecuteNonQuery();
 
             if (rowsAffected > 0)
@@ -104,3 +107,69 @@ else if (bookDetails != null)
         }
     }
 }
+
+<style>
+    /* General layout */
+    .search-section {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    .search-input {
+        padding: 8px;
+        font-size: 16px;
+        width: 250px;
+        margin-right: 10px;
+    }
+
+    .download-button {
+        padding: 8px 15px;
+        font-size: 16px;
+        cursor: pointer;
+        background-color: #2196F3;
+        color: white;
+        border: none;
+    }
+
+    /* Book Details Layout */
+    .book-details {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .book-cover {
+        width: 150px;
+        height: auto;
+        margin-top: 10px;
+    }
+
+    .link-to-open-library {
+        color: #2196F3;
+        text-decoration: none;
+    }
+
+    .link-to-open-library:hover {
+        text-decoration: underline;
+    }
+
+    .action-button {
+        padding: 8px 15px;
+        font-size: 16px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        margin-top: 10px;
+    }
+
+    .action-button:hover {
+        background-color: #45a049;
+    }
+
+    /* Loading and Error Message */
+    p {
+        text-align: center;
+        color: #888;
+        font-size: 1.2em;
+    }
+</style>

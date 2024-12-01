@@ -51,6 +51,7 @@ public class MusicService
         request.AddParameter("method", "artist.search");
         request.AddParameter("artist", query);
         request.AddParameter("api_key", apiKey);
+        request.AddParameter("limit", 10);
         request.AddParameter("format", "json");
 
         try

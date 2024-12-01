@@ -1,14 +1,30 @@
 ﻿@page "/"
 
-<PageTitle>Home</PageTitle>
+<PageTitle>My Media List</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="welcome-container">
+    <h1 class="welcome-title">My Media List</h1>
+</div>
 
-Welcome to your new app.
+<p>Welcome to your Media List.</p>
 
 <Music/>
-
 <Movie/>
-
 <Book/>
 
+<style>
+    .welcome-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 10vh;
+        text-align: center;
+    }
+
+    .welcome-title {
+        font-size: 3em;
+        font-weight: bold;
+        color: #333;
+        margin: 0;
+    }
+</style>

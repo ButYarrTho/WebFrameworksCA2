@@ -1,11 +1,9 @@
 ﻿@page "/movies"
 @using MySql.Data.MySqlClient
 
-<PageTitle>Movies</PageTitle>
 
 <h3 class="text-center">Movies</h3>
 
-<!-- Search Section -->
 <div class="search-section">
     <input type="text" @bind="movieSearchQuery" placeholder="Search Movies" class="search-input" />
     <button @onclick="SearchMovies" class="search-button">Search</button>
